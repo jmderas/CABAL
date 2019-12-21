@@ -1,0 +1,3 @@
+1. Run  > npm install  to install node modules
+2. Run > npm run dev to start server in development mode
+3. Update config.json in configs/config.json to point to proper mongodb host and port (this assumes you have mongodb installed)
