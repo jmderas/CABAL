@@ -9,4 +9,5 @@ p {
   display: flex;
   justify-content: center;
   font-style: italic;
+  padding-top: 200px;
 }
