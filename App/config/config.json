@@ -1,0 +1,30 @@
+{
+	"development": {
+		"port": 3000,
+		"database": {
+			"name": "cabal-dev",
+			"port": "27017",
+			"host": "localhost"
+		},
+		"session": {
+			"database": "sessions-dev",
+			"collection": "sessions",
+			"secretkey" : "secretkey",
+			"maxAge" : 3600000
+		}
+	},
+	"production": {
+		"port": 8080,
+		"database": {
+			"name": "cabal",
+			"port": "27017",
+			"host": "localhost"
+		},
+		"session": {
+			"database": "sessions",
+			"collection": "sessions",
+			"secretkey" : "secretkey",
+			"maxAge" : 3600000
+		}
+	}
+}
