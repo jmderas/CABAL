@@ -2,8 +2,21 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
+const nodemailer = require('nodemailer');
 const User = require('../models/user');
 const path = require('path');
+
+// transport object for mailing. does this use ssl?
+const transporter = nodemailer.createTransport({
+  service: global.gConfig.email.service,
+  auth: {
+    user: global.gConfig.email.username,
+    pass: global.gConfig.email.password
+  },
+  tls: {
+  	rejectUnauthorized: false
+  }
+});
 
 // Welcome Page
 router.get('/', ensureAuthenticated, (req, res) => res.sendFile(path.join(__dirname, '../views', 'dashboard.html')));
@@ -43,6 +56,21 @@ router.post('/register', (req, res, next) => {
 				});
 				//commit new user to db
 				console.log(newUser);
+				//email new user
+				const mailOptions = {
+					from: global.gConfig.email.username,
+					to: req.body.email,
+					subject: 'Sending Email using Node.js',
+					text: "You ain't got the answers Sway!"
+				};
+				console.log(mailOptions);
+				transporter.sendMail(mailOptions, function(error, info){
+					if (error) {
+						console.log(error);
+					} else {
+						console.log('Email sent: ' + info.response);
+					}
+				});
 				newUser.save()
               	.then(newUser => {
 	                //log them in and send to dashboard
