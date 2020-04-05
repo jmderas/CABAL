@@ -64,7 +64,7 @@ router.post('/register', (req, res, next) => {
 					from: global.gConfig.email.username,
 					to: req.body.email,
 					subject: 'Welcome to Cabal ',
-					text: "<h2>Welcome " + req.body.username "!</h2><br><p>You must verify your new account before you can use Cabal</p> <p>Please use the following verification code when prompted: "+confirmationCode+"</p>"
+					text: "<h2>Welcome " + req.body.username + "!</h2><br><p>You must verify your new account before you can use Cabal</p> <p>Please use the following verification code when prompted: " + confirmationCode + "</p>"
 				};
 				console.log(mailOptions);
 				transporter.sendMail(mailOptions, function(error, info){
