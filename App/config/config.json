@@ -10,7 +10,12 @@
 			"database": "sessions-dev",
 			"collection": "sessions",
 			"secretkey" : "secretkey",
-			"maxAge" : 3600000
+			"maxAge" : 1200000
+		},
+		"email" : {
+			"service" : "gmail",
+			"username" : "email",
+			"password" : "password"
 		}
 	},
 	"production": {
@@ -24,7 +29,7 @@
 			"database": "sessions",
 			"collection": "sessions",
 			"secretkey" : "secretkey",
-			"maxAge" : 3600000
+			"maxAge" : 1200000
 		}
 	}
 }

@@ -1,9 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
-const { ensureAuthenticated, forwardAuthenticated } = require('../config/auth');
+const { ensureAuthenticated, ensureAuthenticatedAndVerified, forwardAuthenticated } = require('../config/auth');
 const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const User = require('../models/user');
+const Verification = require('../models/verification');
 const path = require('path');
 
 // transport object for mailing. does this use ssl?
@@ -14,12 +16,12 @@ const transporter = nodemailer.createTransport({
     pass: global.gConfig.email.password
   },
   tls: {
-  	rejectUnauthorized: false
+  	rejectUnauthorized: false //temporary
   }
 });
 
 // Welcome Page
-router.get('/', ensureAuthenticated, (req, res) => res.sendFile(path.join(__dirname, '../views', 'dashboard.html')));
+router.get('/', ensureAuthenticatedAndVerified, (req, res) => res.sendFile(path.join(__dirname, '../views', 'dashboard.html')));
 
 // Login Page
 router.get('/login', forwardAuthenticated, (req, res) => res.sendFile(path.join(__dirname, '../views', 'login.html')));
@@ -47,7 +49,7 @@ router.post('/register', (req, res, next) => {
 		}).then(function(user){
 			if(!user){
 				//create a new user
-				const newUser = new User({
+				let newUser = new User({
 					username: req.body.username,
 					email: req.body.email,
 					firstName: req.body.first, 
@@ -57,11 +59,12 @@ router.post('/register', (req, res, next) => {
 				//commit new user to db
 				console.log(newUser);
 				//email new user
-				const mailOptions = {
+				let confirmationCode = crypto.randomBytes(8).toString("hex");
+				let mailOptions = {
 					from: global.gConfig.email.username,
 					to: req.body.email,
-					subject: 'Sending Email using Node.js',
-					text: "You ain't got the answers Sway!"
+					subject: 'Welcome to Cabal ',
+					text: "<h2>Welcome " + req.body.username "!</h2><br><p>You must verify your new account before you can use Cabal</p> <p>Please use the following verification code when prompted: "+confirmationCode+"</p>"
 				};
 				console.log(mailOptions);
 				transporter.sendMail(mailOptions, function(error, info){
@@ -69,20 +72,58 @@ router.post('/register', (req, res, next) => {
 						console.log(error);
 					} else {
 						console.log('Email sent: ' + info.response);
-					}
+						newUser.save()
+						.then(newUser => {
+							//log them in and send to verification page
+							let newVerification = new Verification({
+								email: req.body.email,
+								code: confirmationCode
+							})
+							newVerification.save().then(code =>{
+								res.redirect('/login')
+							})
+						})
+						.catch(err => 
+							res.redirect('/login'));
+						}
 				});
-				newUser.save()
-              	.then(newUser => {
-	                //log them in and send to dashboard
-	                res.redirect('/login')
-	              })
-	           	.catch(err => res.redirect('/login'));
 			}else{
 				console.log("User already exists")
 				//user already exists
 				res.redirect('/login');
 			}
 		})
+});
+
+router.get('/verify', ensureAuthenticated ,(req, res, next) => {
+	res.sendFile(path.join(__dirname, '../views', 'verify.html'))
+});
+
+router.post('/verify', ensureAuthenticated ,(req, res, next) => {
+	Verification.findOne({
+		email : req.user.email
+	}).then(verification =>{
+		if(verification){
+			if(verification.code == req.body.confirmation){
+				User.updateOne( { email : req.user.email},{verified : true}).then( (object) => {
+					console.log(object)
+					console.log("Verified. Removing verification from db");
+					Verification.deleteOne({
+						_id : verification._id
+					}).then( (object) => {
+						console.log(object);
+						res.redirect('/');
+					});
+				});
+			}else{
+				console.log("Failed to verify");
+				res.redirect('/verify');
+			}
+		}else{
+			console.log("Failed to verify. Already verified");
+			res.redirect('/');
+		}
+	}).catch(err => console.log(err));
 });
 
 module.exports = router;
