@@ -14,8 +14,8 @@
 		},
 		"email" : {
 			"service" : "gmail",
-			"username" : "email",
-			"password" : "password"
+			"username" : "cabal.devenv@gmail.com",
+			"password" : "steelersrock!"
 		}
 	},
 	"production": {

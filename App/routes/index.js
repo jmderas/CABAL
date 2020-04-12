@@ -21,10 +21,13 @@ const transporter = nodemailer.createTransport({
 });
 
 // Welcome Page
-router.get('/', ensureAuthenticatedAndVerified, (req, res) => res.sendFile(path.join(__dirname, '../views', 'dashboard.html')));
+router.get('/', ensureAuthenticatedAndVerified, (req, res) => res.render('dashboard'));
+
+//chatroom
+router.get('/chat', ensureAuthenticatedAndVerified, (req, res) => res.render('chatroom'));
 
 // Login Page
-router.get('/login', forwardAuthenticated, (req, res) => res.sendFile(path.join(__dirname, '../views', 'login.html')));
+router.get('/login', forwardAuthenticated, (req, res) => res.render('login',{layout: 'layout-nonav'}));
 
 router.post('/login', (req, res, next) => {
   passport.authenticate('local', {
@@ -41,7 +44,7 @@ router.get('/logout', (req, res) => {
 });
 
 //register
-router.get('/register', forwardAuthenticated, (req, res) => res.sendFile(path.join(__dirname, '../views', 'register.html')));
+router.get('/register', forwardAuthenticated, (req, res) => res.render('register',{layout: 'layout-nonav'}));
 
 router.post('/register', (req, res, next) => {
 		User.findOne({
@@ -70,6 +73,7 @@ router.post('/register', (req, res, next) => {
 				transporter.sendMail(mailOptions, function(error, info){
 					if (error) {
 						console.log(error);
+						res.redirect('/login');
 					} else {
 						console.log('Email sent: ' + info.response);
 						newUser.save()
@@ -96,7 +100,7 @@ router.post('/register', (req, res, next) => {
 });
 
 router.get('/verify', ensureAuthenticated ,(req, res, next) => {
-	res.sendFile(path.join(__dirname, '../views', 'verify.html'))
+	res.render('verify',{layout: 'layout-nonav'})
 });
 
 router.post('/verify', ensureAuthenticated ,(req, res, next) => {

@@ -8,8 +8,11 @@ const VerificationSchema = new mongoose.Schema({
   },
   code: {
   	type: String,
-  	required: true,
-  	index: true
+  	required: true
+  },
+  created: {
+    type: Date,
+    default: Date.now
   }
 })
 

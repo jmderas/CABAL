@@ -1,4 +1,5 @@
 const express = require('express');
+const expressLayouts = require('express-ejs-layouts');
 const bodyParser = require('body-parser');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -49,6 +50,8 @@ const store = new mongodbstore({
   collection: global.gConfig.session.collection
 });
 
+app.use(expressLayouts);
+app.set('view engine','ejs');
 app.use(express.static(path.join(__dirname,'public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
@@ -69,8 +72,23 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.listen(global.gConfig.port, function(){
+// Global variables
+app.use(function(req, res, next) {
+  res.locals.user = req.user || null;
+  next();
+});
+
+
+const server = app.listen(global.gConfig.port, function(){
 	console.log(`listening on ${global.gConfig.port}`);
+});
+
+const io = require('socket.io').listen(server);
+
+io.on('connection', function(socket){
+  socket.on('chat message', function(msg){
+    io.emit('chat message', msg);
+  });
 });
 
 app.use('/', require('./routes/index'));
