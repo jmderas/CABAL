@@ -1,6 +1,6 @@
 {
 	"development": {
-		"port": 3000,
+		"port": 5000,
 		"database": {
 			"name": "cabal-dev",
 			"port": "27017",
