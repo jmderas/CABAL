@@ -1,13 +1,14 @@
 body{
-  background-color: #DA2727;
+  background-color: #121212e0;
 }
 p {
-  font-size: 140px;
+  font-size: 100px;
   color: white;
   font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   font-weight: 700;
   display: flex;
   justify-content: center;
   font-style: italic;
-  padding-top: 200px;
+  padding-top: 100px;
+  
 }
