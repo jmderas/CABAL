@@ -7,6 +7,8 @@ function App() {
       <header className="App-header">
         <p>
           CABAL
+
+          {/* Richy Rich I love you big dog */}
         </p>
       </header>
     </div>
