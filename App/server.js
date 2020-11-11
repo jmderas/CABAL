@@ -86,10 +86,14 @@ const server = app.listen(global.gConfig.port, function(){
 const io = require('socket.io').listen(server);
 
 io.on('connection', function(socket){
-  socket.on('chat message', function(msg){
-    io.emit('chat message', msg);
+  socket.on('chat message', function(payload){
+    if(payload && payload.msg){
+      console.log("sending msg");
+      io.emit('chat message', payload);
+    }
   });
 });
 
 app.use('/', require('./routes/index'));
+app.use('/rooms',require('./routes/rooms'))
 
